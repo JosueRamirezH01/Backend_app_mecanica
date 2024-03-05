@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "3314936947",
+    "project_id": "servicbiker",
+    "storage_bucket": "servicbiker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3314936947:android:166f6da9736e5b32864e06",
+        "android_client_info": {
+          "package_name": "com.josue.app_mecanica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAejuHykuOAZOG9chyWllqWfG6hB2K2Vlk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
