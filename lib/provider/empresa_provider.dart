@@ -2,9 +2,9 @@
 
 import 'dart:convert';
 
-import 'package:app_mecanica/api/environment.dart';
-import 'package:app_mecanica/models/empresa.dart';
-import 'package:app_mecanica/models/response_api.dart';
+import 'package:TallerGo/api/environment.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/models/response_api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,7 +19,7 @@ class EmpresaProvider {
 
   Future<List<Empresa>?> getAll() async {
     try {
-      Uri url = Uri.http(_url, '$_api/getAll');
+      Uri url = Uri.https(_url, '$_api/getAll');
       Map<String, String> headers = {
         'Content-type': 'application/json'
       };
@@ -36,7 +36,7 @@ class EmpresaProvider {
 
   Future<ResponseApi?> crearCalificacion(Empresa empresa) async {
     try {
-      Uri url = Uri.http(_url, '$_api/crearCalificacion');
+      Uri url = Uri.https(_url, '$_api/crearCalificacion');
       String bodyParams = json.encode(empresa);
       Map<String, String> headers = {
         'Content-type': 'application/json'

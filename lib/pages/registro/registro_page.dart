@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app_mecanica/pages/registro/registro_controller.dart';
+import 'package:TallerGo/pages/registro/registro_controller.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -134,13 +134,12 @@ class _RegistroPageState extends State<RegistroPage> {
                   onPressed: _con.mostrarBoton ? _con.registrar : null,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 100),
-                    primary: const Color.fromARGB(255, 153, 204, 102),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 18),
                     child: Text(
                       'Registrar',
                       style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'OneDay', fontWeight: FontWeight.bold),

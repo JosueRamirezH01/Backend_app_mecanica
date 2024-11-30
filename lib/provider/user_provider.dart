@@ -2,9 +2,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:app_mecanica/api/environment.dart';
-import 'package:app_mecanica/models/response_api.dart';
-import 'package:app_mecanica/models/user.dart';
+import 'package:TallerGo/api/environment.dart';
+import 'package:TallerGo/models/response_api.dart';
+import 'package:TallerGo/models/user.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
@@ -21,7 +21,7 @@ class UserProvider{
 
   Future<ResponseApi?> login(String email, String password) async{
     try {
-      Uri url = Uri.http(_url, '$_api/login');
+      Uri url = Uri.https(_url, '$_api/login');
       String bodiParams = json.encode({
         'email': email,
         'password': password
@@ -40,7 +40,7 @@ class UserProvider{
 
   Future<ResponseApi?> logout(String idUsuario) async {
     try {
-      Uri url = Uri.http(_url, '$_api/logout');
+      Uri url = Uri.https(_url, '$_api/logout');
       String bodyParams = json.encode({
         'id_usuario': idUsuario,
       });
@@ -60,7 +60,7 @@ class UserProvider{
 
   Future<ResponseApi?> create(User user) async {
     try {
-      Uri url = Uri.http(_url, '$_api/create');
+      Uri url = Uri.https(_url, '$_api/create');
       String bodyParams = json.encode(user.toJson());
       Map<String, String> headers = {
         'Content-type': 'application/json',
@@ -76,7 +76,7 @@ class UserProvider{
   }
   Future<ResponseApi?> validarEmail(String email) async {
     try{
-      Uri url = Uri.http(_url, '$_api/lookEmail');
+      Uri url = Uri.https(_url, '$_api/lookEmail');
       String bodyParams = json.encode({
         'email': email,
       });
@@ -95,7 +95,7 @@ class UserProvider{
 
   Future<ResponseApi?> codeRegister (String email) async{
     try {
-      Uri url = Uri.http(_url, '$_api/forgot-registro');
+      Uri url = Uri.https(_url, '$_api/forgot-registro');
       String bodyParams = json.encode({
         'email': email,
       });
@@ -117,7 +117,7 @@ class UserProvider{
   Future<ResponseApi?> validateTokenRegistro(String token) async {
 
     try {
-      Uri url = Uri.http(_url, '$_api/validarTokenRegistro');
+      Uri url = Uri.https(_url, '$_api/validarTokenRegistro');
       String bodyParams = json.encode({
         'token': token,
       });
@@ -137,7 +137,7 @@ class UserProvider{
 
   Future<User?> getById(String? id_usuario) async {
     try {
-      Uri url = Uri.http(_url, '$_api/getById/$id_usuario');
+      Uri url = Uri.https(_url, '$_api/getById/$id_usuario');
       Map<String, String> headers = {
         'Content-type': 'application/json',
       };
@@ -154,7 +154,7 @@ class UserProvider{
 
   Future<ResponseApi?> updatePassword(String? idUsuario, String? password) async{
     try{
-      Uri url = Uri.http(_url, '$_api/editPassword');
+      Uri url = Uri.https(_url, '$_api/editPassword');
       String bodiParams = json.encode({
         'id_usuario': idUsuario,
         'password': password
@@ -174,7 +174,7 @@ class UserProvider{
 
   Future<Stream?> update(User user, File? image) async {
     try {
-      Uri url = Uri.http(_url, '$_api/update');
+      Uri url = Uri.https(_url, '$_api/update');
       final request = http.MultipartRequest('PUT', url);
       if (image != null) {
         request.files.add(http.MultipartFile(
@@ -195,7 +195,7 @@ class UserProvider{
 
   Future<ResponseApi?> forgotPassword (String email) async{
     try {
-      Uri url = Uri.http(_url, '$_api/forgot-password');
+      Uri url = Uri.https(_url, '$_api/forgot-password');
       String bodyParams = json.encode({
         'email': email,
       });

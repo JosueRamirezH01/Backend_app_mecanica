@@ -1,7 +1,7 @@
 
 
-import 'package:app_mecanica/models/empresa.dart';
-import 'package:app_mecanica/pages/home/lista/list_controller.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/pages/home/lista/list_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -113,7 +113,6 @@ class _ListPageState extends State<ListPage> {
                 ),
               ),
               Container(
-                width: double.infinity,
                 height: 50,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
@@ -121,14 +120,13 @@ class _ListPageState extends State<ListPage> {
                     topRight: Radius.circular(20),
                   ),
                 ),
-                constraints: const BoxConstraints(maxWidth: 250),
+                constraints: const BoxConstraints(maxWidth: 220),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.only(left: 15),
                   child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      SizedBox(
                         child: GestureDetector(
                           onTap: () {
                             setState(() {
@@ -215,7 +213,7 @@ class _ListPageState extends State<ListPage> {
               style: TextStyle(fontFamily: 'NimbusSans', fontSize: 18),
             ),
           ),
-          SizedBox(
+          Flexible(
             child: Row(
               children: [
                 GestureDetector(
@@ -241,7 +239,7 @@ class _ListPageState extends State<ListPage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 10),
                 GestureDetector(
                   onTap: (){
                     setState(() {
@@ -267,7 +265,7 @@ class _ListPageState extends State<ListPage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 10),
                 GestureDetector(
                   onTap: (){
                     setState(() {
@@ -328,7 +326,7 @@ class _ListPageState extends State<ListPage> {
           ),
           const SizedBox(height: 5),
           Padding(
-            padding: const EdgeInsets.only(left: 270),
+            padding: const EdgeInsets.only(left: 240),
             child: GestureDetector(
               onTap: (){
                 setState(() {

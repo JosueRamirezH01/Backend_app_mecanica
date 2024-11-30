@@ -1,7 +1,7 @@
-import 'package:app_mecanica/models/empresa.dart';
-import 'package:app_mecanica/models/response_api.dart';
-import 'package:app_mecanica/provider/empresa_provider.dart';
-import 'package:app_mecanica/utils/my_snackbar.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/models/response_api.dart';
+import 'package:TallerGo/provider/empresa_provider.dart';
+import 'package:TallerGo/utils/my_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -10,13 +10,14 @@ class InformacionController {
   late Function refresh;
   late String direccion;
   double? puntuacion;
+  late bool isColorFavorite = false;
   final EmpresaProvider _empresaProvider = EmpresaProvider();
-
   Future init(BuildContext context, Function refresh) async {
     this.context = context;
     this.refresh = refresh;
     refresh();
   }
+
 
   Future<void> showMyDialog(BuildContext context, String? idEmpresa) async {
     return showDialog<void>(

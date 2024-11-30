@@ -1,4 +1,4 @@
-import 'package:app_mecanica/pages/perfil/editar_controller.dart';
+import 'package:TallerGo/pages/perfil/editar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -234,22 +234,25 @@ class _EditarPerfilState extends State<EditarPerfil> {
   }
 
   Widget _actualizarBoton(){
-    return ElevatedButton(
-      style: const ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 0, 0, 255 )),
-        padding: MaterialStatePropertyAll(EdgeInsets.only(right: 50, left: 50, top: 10,bottom: 10)),
-        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))))
+    return Container(
+      margin: EdgeInsets.only(bottom: 20),
+      child: ElevatedButton(
+        style: const ButtonStyle(
+          backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 0, 0, 255 )),
+          padding: MaterialStatePropertyAll(EdgeInsets.only(right: 50, left: 50, top: 10,bottom: 10)),
+          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))))
 
-      ),
-        onPressed: () {
-        _con.update();
-        },
-        child: const Text('Actualizar',style: TextStyle(fontSize: 20),));
+        ),
+          onPressed: () {
+          _con.update();
+          },
+          child: const Text('Actualizar',style: TextStyle(fontSize: 20, color: Colors.white))),
+    );
   }
 
   Widget _switch(){
     return Padding(
-      padding: const EdgeInsets.only(left: 30),
+      padding: const EdgeInsets.only(left: 20),
       child: Row(
         children: [
           const Text('Habilita para cambiar tu contraseña', style: TextStyle(
@@ -257,7 +260,7 @@ class _EditarPerfilState extends State<EditarPerfil> {
             fontFamily: 'NimbusSans',
             color: Colors.blue
           )),
-          const SizedBox(width: 30),
+          const SizedBox(width: 5),
           Switch(
               value: _con.switchValue,
               onChanged: (value) {

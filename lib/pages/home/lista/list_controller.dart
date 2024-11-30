@@ -1,6 +1,6 @@
-import 'package:app_mecanica/models/empresa.dart';
-import 'package:app_mecanica/pages/home/informacion/informacion_page.dart';
-import 'package:app_mecanica/provider/empresa_provider.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/pages/home/informacion/informacion_page.dart';
+import 'package:TallerGo/provider/empresa_provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 

@@ -1,4 +1,4 @@
-import 'package:app_mecanica/pages/recuperacion/confirmacion/confirmacion_controller.dart';
+import 'package:TallerGo/pages/recuperacion/confirmacion/confirmacion_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 

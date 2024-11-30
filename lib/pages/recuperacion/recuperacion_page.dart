@@ -1,4 +1,4 @@
-import 'package:app_mecanica/pages/recuperacion/recuperacion_controller.dart';
+import 'package:TallerGo/pages/recuperacion/recuperacion_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -25,11 +25,14 @@ class _RecuperacionPageState extends State<RecuperacionPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 52, 73, 94),
-        title: const Text(
-          'Recuperación de Contraseña',
-          style: TextStyle(
-            fontSize: 24,
-            fontFamily: 'Roboto'
+        title: FittedBox(
+          fit: BoxFit.fitWidth,
+          child: const Text(
+            'Recuperación de Contraseña ',
+            style: TextStyle(
+              fontSize: 24,
+              fontFamily: 'Roboto'
+            ),
           ),
         ),
         centerTitle: true,
@@ -60,7 +63,6 @@ class _RecuperacionPageState extends State<RecuperacionPage> {
                 _con.forgotPassoword();
               },
               style: ElevatedButton.styleFrom(
-                primary: Color.fromARGB(255, 153, 204, 102),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),

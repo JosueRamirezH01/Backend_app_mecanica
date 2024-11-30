@@ -3,15 +3,17 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:app_mecanica/models/empresa.dart';
-import 'package:app_mecanica/models/user.dart';
-import 'package:app_mecanica/provider/empresa_provider.dart';
-import 'package:app_mecanica/provider/user_provider.dart';
-import 'package:app_mecanica/utils/shared_pref.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/models/user.dart';
+import 'package:TallerGo/provider/empresa_provider.dart';
+import 'package:TallerGo/provider/user_provider.dart';
+import 'package:TallerGo/utils/my_snackbar.dart';
+import 'package:TallerGo/utils/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:location/location.dart' as location;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeController{
@@ -22,14 +24,17 @@ class HomeController{
     final EmpresaProvider _empresaProvider = EmpresaProvider();
     User? users;
     bool isBottomWidgetVisible = false;
-    Position? _position;
+    Position? position;
     double? promedio;
     Empresa? selectedEmpresa;
+    late ProgressDialog progressDialog;
     List<Empresa> empresas = [];
-    CameraPosition posicionInicial = const CameraPosition(target: LatLng(-12.0962912,-77.0218907),zoom: 14.0);
+    CameraPosition posicionInicial =  CameraPosition(target: LatLng(-12.0102912,-77.0108907),zoom: 14.0);
     final Completer<GoogleMapController> _mapController = Completer();
     final Set<Marker> markers = {};
+    Map<String, MarkerId> empresaMarkers = {};
     bool isLoading = false;
+    StreamSubscription<Position>? _positionStream;
     Future init(BuildContext context, Function refresh) async{
       this.context = context;
       this.refresh = refresh;
@@ -38,7 +43,6 @@ class HomeController{
       users = User.fromJson(await _sharedPref.read('user'));
       checkGPS();
       await fetchEmpresas();
-      refresh();
     }
 
     Future<void> openMaps() async {
@@ -57,16 +61,16 @@ class HomeController{
     Future<void> fetchEmpresas() async {
       try {
         // Obtener la posición actual del usuario
-        _position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        position = await Geolocator.getLastKnownPosition();
 
-        if (_position != null) {
+        if (position != null) {
           // Obtener todas las empresas
           List<Empresa>? empresas = await _empresaProvider.getAll();
 
           if (empresas != null) {
             // Filtrar las empresas que están dentro del radio de 10 km
             List<Empresa> empresasCercanas = empresas.where((empresa) {
-              double distancia = calcularDistancia(_position!.latitude, _position!.longitude, empresa.latitud!, empresa.longitud!);
+              double distancia = calcularDistancia(position!.latitude, position!.longitude, empresa.latitud!, empresa.longitud!);
               empresa.distancia = distancia;
               return distancia <= 10; // Filtrar empresas dentro del radio de 10 km
             }).toList();
@@ -108,6 +112,7 @@ class HomeController{
 
     void addMarkers(List<Empresa> empresas) {
       markers.clear(); // Limpiar los marcadores anteriores
+      empresaMarkers.clear();
       for (var empresa in empresas) {
         print('Adding marker for: ${empresa.razon_social}');
         print('Coordinates: ${empresa.latitud}, ${empresa.longitud}');
@@ -124,6 +129,7 @@ class HomeController{
             icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue), // Por ejemplo, un marcador azul
           ),
         );
+        empresaMarkers[empresa.razon_social!] = MarkerId(empresa.razon_social!);
       }
       print('Total markers added: ${markers.length}');
       print('Markers: $markers');
@@ -146,6 +152,7 @@ class HomeController{
       if (!_mapController.isCompleted) {
         _mapController.complete(controller);
       }
+      refresh();
     }
 
     logout(){
@@ -154,29 +161,77 @@ class HomeController{
     void goToEditar(){
       Navigator.pushNamed(context, 'perfil');
     }
-
-    Future<void> updateLocation() async {
-      await _determinePosition();
-      _position = await Geolocator.getLastKnownPosition();
-      animateCameraToPosition(_position?.latitude, _position?.longitude);
+    void goFavoritos(){
+      Navigator.pushNamed(context, 'favoritos');
     }
+
+    void goChat(){
+      Navigator.pushNamed(context, 'chat');
+    }
+
+    void centerPosition(){
+      if(position != null){
+        animateCameraToPosition(position?.latitude, position?.longitude);
+      }else {
+        MySnackbarError.show(context, 'Activa el GPS para activar tu posicion');
+      }
+    }
+
+    void updateLocation() async {
+      try {
+
+        await _determinePosition();
+        position = await Geolocator.getLastKnownPosition();
+        centerPosition();
+        animateCameraToPosition(position?.latitude, position?.longitude);
+        _positionStream = Geolocator.getPositionStream(
+            locationSettings: LocationSettings(
+                distanceFilter: 1,
+                accuracy: LocationAccuracy.best
+            )
+        ).listen((Position position) {
+          position = position;
+          animateCameraToPosition(position.latitude, position.longitude);
+          //fetchEmpresas();
+          refresh();
+        });
+      } catch(e) {
+        print('Error: $e');
+      }
+    }
+    /*Future<void> centrarMapaEnMarker(MarkerId markerId) async {
+      final GoogleMapController controller = await _mapController.future;
+
+      final marker = markers.firstWhere((marker) => marker.markerId == markerId);
+      final cameraUpdate = CameraUpdate.newLatLng(marker.position);
+      await controller.animateCamera(cameraUpdate);
+    }
+
+    void centrarMapaEnEmpresa(String? empresaName) {
+      if (empresaName != null) {
+        // Suponiendo que `empresaMarkers` es un Map<String, MarkerId> que mapea los nombres de las empresas con los identificadores de los marcadores
+        final markerId = empresaMarkers[empresaName];
+        if (markerId != null) {
+          centrarMapaEnMarker(markerId);
+        } else {
+          print('No se encontró ninguna empresa con el nombre $empresaName');
+        }
+      }
+    }*/
 
     void checkGPS() async {
       bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
       if (isLocationEnabled) {
-        print('GPS ACTIVADO');
         updateLocation();
       }
       else {
-        print('GPS DESACTIVADO');
         bool locationGPS = await location.Location().requestService();
         if (locationGPS) {
           updateLocation();
-          print('ACTIVO EL GPS');
         }
       }
-
     }
+
     Future animateCameraToPosition(double? latitude, double? longitude) async {
       GoogleMapController controller = await _mapController.future;
       controller.animateCamera(CameraUpdate.newCameraPosition(
@@ -186,42 +241,29 @@ class HomeController{
           zoom: 16, // Usar el valor de zoom proporcionado
         ),
       ));
+      refresh();
     }
 
     Future<Position> _determinePosition() async {
       bool serviceEnabled;
       LocationPermission permission;
 
-      // Test if location services are enabled.
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        // Location services are not enabled don't continue
-        // accessing the position and request users of the
-        // App to enable the location services.
         return Future.error('Location services are disabled.');
       }
-
       permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          // Permissions are denied, next time you could try
-          // requesting permissions again (this is also where
-          // Android's shouldShowRequestPermissionRationale
-          // returned true. According to Android guidelines
-          // your App should show an explanatory UI now.
           return Future.error('Location permissions are denied');
         }
       }
-
       if (permission == LocationPermission.deniedForever) {
-        // Permissions are denied forever, handle appropriately.
         return Future.error(
             'Location permissions are permanently denied, we cannot request permissions.');
       }
 
-      // When we reach here, permissions are granted and we can
-      // continue accessing the position of the device.
       return await Geolocator.getCurrentPosition();
     }
 }

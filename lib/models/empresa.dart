@@ -17,6 +17,7 @@ class Empresa {
   bool? tienda_fisica;
   bool? taller_mecanico;
   bool? activo;
+  bool? isColorFavorite;
   String? id_coordenadas;
   double? latitud;
   double? longitud;
@@ -43,6 +44,7 @@ class Empresa {
     this.activo,
     this.celular,
     this.imagen,
+    this.isColorFavorite,
     this.id_coordenadas,
     this.latitud,
     this.promedio,
@@ -64,6 +66,7 @@ class Empresa {
       taller_mecanico: json["taller_mecanico"],
       auxilio_mecanico: json["auxilio_mecanico"],
       activo: json["activo"],
+      isColorFavorite:  json["isColorFavorite"],
       distancia: json["distancia"],
       celular: json["celular"],
       imagen: json["imagen"],
@@ -93,6 +96,7 @@ class Empresa {
     "id_empresa": id_empresa,
     "id_empresa_cal": id_empresa_cal,
     "ruc": ruc,
+    "isColorFavorite": isColorFavorite,
     "taller_mecanico": taller_mecanico,
     "auxilio_mecanico": auxilio_mecanico,
     "tienda_fisica": tienda_fisica,

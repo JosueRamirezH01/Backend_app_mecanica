@@ -1,11 +1,14 @@
 
-import 'package:app_mecanica/models/empresa.dart';
-import 'package:app_mecanica/pages/home/informacion/informacion_controller.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/pages/home/informacion/informacion_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../provider/FavoritosProvider.dart';
 
 
 
@@ -20,11 +23,13 @@ class InformacionPage extends StatefulWidget {
 
 class _InformacionPageState extends State<InformacionPage> {
   final InformacionController _con = InformacionController();
+
   late final Empresa? empresaF;
   bool _isCalificacionExpanded = false;
   bool _isEmpresaInfoExpanded = false;
   bool _isTiendaVirtualExpanded = false;
   late String? direccion = '' ;
+  late  FavoritosProvider favoritosProvider;
   @override
   void initState() {
     super.initState();
@@ -48,100 +53,137 @@ class _InformacionPageState extends State<InformacionPage> {
   }
   @override
   Widget build(BuildContext context) {
+    favoritosProvider = Provider.of<FavoritosProvider>(context, listen: false);
+    final listaFavoritos = favoritosProvider.listaFavoritos;
+    bool isPresent = listaFavoritos.any((empresa) => empresa.id_empresa == empresaF?.id_empresa);
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor:  const Color.fromARGB(255, 0, 0, 255),
-        elevation: 1,
-        toolbarHeight: 150,
-        leading: IconButton(
-          padding:  const EdgeInsets.only(left: 10, bottom: 20),
-          icon: Image.asset(
-            'assets/img/atras.png',
-            width: 50,
-            height: 50,
-            color: Colors.amber,
-            fit: BoxFit.cover,
+        appBar: AppBar(
+          backgroundColor:  const Color.fromARGB(255, 0, 0, 255),
+          elevation: 1,
+          toolbarHeight: 150,
+          leading: IconButton(
+            padding:  const EdgeInsets.only(left: 10, bottom: 20),
+            icon: Image.asset(
+              'assets/img/atras.png',
+              width: 50,
+              height: 50,
+              color: Colors.amber,
+              fit: BoxFit.cover,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:  [
-                   const SizedBox(height: 10),
-                  const Text(
-                    'Servicios Mecanicos',
-                    style: TextStyle(fontSize: 24, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold),
-                  ),
-                  const Text('Biker', style: TextStyle(fontSize: 22, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  // Accede a las propiedades de empresa a través de widget.empresa
-                  Text(
-                    empresaF?.razon_social ?? 'Sin empresa seleccionada',
-                    style: const TextStyle(fontSize: 18, fontFamily: 'NimbusSans'),
-                  ),
-                ],
-              ),
-            ),
-            CircleAvatar(
-              radius: 30,
-              backgroundColor:  const Color.fromARGB(255, 253, 216, 53),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/img/icon_service.png',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                  color:  const Color.fromARGB(255, 3, 155, 229),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: Stack(
-        children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(10),
-                  image:  DecorationImage(
-                    image: NetworkImage(empresaF?.imagen ?? ''),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:  [
+                     const SizedBox(height: 10),
+                    FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: const Text(
+                        'Servicios Mecanicos',
+                        style: TextStyle(fontSize: 24, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Text('Biker', style: TextStyle(fontSize: 22, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    // Accede a las propiedades de empresa a través de widget.empresa
+                    Text(
+                      empresaF?.razon_social ?? 'Sin empresa seleccionada',
+                      style: const TextStyle(fontSize: 18, fontFamily: 'NimbusSans'),
+                    ),
+                  ],
+                ),
+              ),
+              CircleAvatar(
+                radius: 30,
+                backgroundColor:  const Color.fromARGB(255, 253, 216, 53),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/img/icon_service.png',
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
+                    color:  const Color.fromARGB(255, 3, 155, 229),
                   ),
                 ),
               ),
-              _buildCalificacionExpansionPanel(),
-              const SizedBox(height: 20),
-              _buildEmpresaInfoExpansionPanel(),
-              const SizedBox(height: 20),
-              _buildTiendaVirtual(),
-              _linkFaccebook(),
-              const SizedBox(height: 20),
             ],
           ),
         ),
-
-           Positioned(
-              bottom: 10,
-              right: 45,
-              child: _buildFloatingButtons(),
+        body: Stack(
+          children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Imagen de fondo
+                      Image.network(
+                        empresaF?.imagen ?? '',
+                        fit: BoxFit.cover,
+                      ),
+                      // Icono encima de la imagen
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isPresent = !isPresent;
+                              if (isPresent) {
+                                favoritosProvider.agregarFavorito(empresaF!);
+                                print('isPresent $isPresent');
+                              } else {
+                                favoritosProvider.eliminarFavorito(empresaF!);
+                              }
+                            });
+                          },
+                          icon: isPresent
+                              ? Image.asset('assets/img/corazon.png', width: 30, height: 30)
+                              : Image.asset('assets/img/healt.png', width: 30, height: 30),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _buildCalificacionExpansionPanel(),
+                const SizedBox(height: 20),
+                _buildEmpresaInfoExpansionPanel(),
+                const SizedBox(height: 20),
+                _buildTiendaVirtual(),
+                FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: _linkFaccebook()),
+                const SizedBox(height: 20),
+              ],
             ),
+          ),
 
-    ]
-      ),
+             Positioned(
+                bottom: 10,
+                right: 20,
+                child: _buildFloatingButtons(),
+              ),
+
+      ]
+        ),
+
     );
   }
 
@@ -207,11 +249,10 @@ class _InformacionPageState extends State<InformacionPage> {
               padding: EdgeInsets.only(left: 10, top: 10),
               child: Text('FACCEBOOK', style: TextStyle(color: Color.fromARGB(255, 0, 0, 255), fontSize: 28, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold)),
             ),
-
             GestureDetector(
               onTap: _launchURLFacce,
               child: Padding(
-                padding: EdgeInsets.only(left: 20),
+                padding: EdgeInsets.only(left: 10),
                   child: Image.asset('assets/img/facebook.png', color: Colors.grey,)
               ),
             )
@@ -341,7 +382,7 @@ class _InformacionPageState extends State<InformacionPage> {
   Widget _linkTiendaVirtual(){
     return GestureDetector(
       onTap: _launchURLTienda,
-        child: Text('${empresaF?.url_tienda}', style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 129, 212, 250)))
+        child: Text(empresaF?.url_tienda ?? 'No disponible', style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 129, 212, 250)))
     );
   }
   Widget _buildEmpresaInfoExpansionPanel() {
@@ -407,7 +448,7 @@ class _InformacionPageState extends State<InformacionPage> {
                       GestureDetector(
                         onTap: _makePhoneCall,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 60, bottom: 10),
+                          padding: const EdgeInsets.only(left: 45, bottom: 15),
                           child: Row(
                             children: [
                               Icon(Icons.call, color: Colors.green),

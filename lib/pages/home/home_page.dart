@@ -1,16 +1,19 @@
 
-import 'package:app_mecanica/pages/home/home_controller.dart';
-import 'package:app_mecanica/pages/home/informacion/informacion_page.dart';
-import 'package:app_mecanica/pages/home/lista/list_page.dart';
+import 'package:TallerGo/models/empresa.dart';
+import 'package:TallerGo/pages/home/chat/chat_page.dart';
+import 'package:TallerGo/pages/home/home_controller.dart';
+import 'package:TallerGo/pages/home/informacion/informacion_page.dart';
+import 'package:TallerGo/pages/home/lista/list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as maps;
 
 
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final Empresa? empresa;
+  HomePage({Key? key, this.empresa}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -19,21 +22,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final HomeController _con = HomeController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final bool _mostrarDatosVisible = false;
   bool _gopagina = false;
-  bool _mostrar = false;
   late Widget _currentBody;
   @override
   void initState() {
     super.initState();
     _currentBody = _googleMaps();
-    SchedulerBinding.instance!.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       _con.init(context, refresh);
+      // if (widget.empresa != null) {
+      //   _con.centrarMapaEnEmpresa(widget.empresa?.razon_social);
+      //   print('EMPRESA DIRECCIONADA ${widget.empresa?.id_empresa}');
+      // }
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -61,15 +68,18 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   SizedBox(height: 10),
-                  Text(
-                    'Servicios Mecanicos',
-                    style: TextStyle(fontSize: 24, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold),
+                  FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(
+                      'Servicios Mecanicos',
+                      style: TextStyle(fontSize: 24, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
                   ),
-                  Text('Biker', style: TextStyle(fontSize: 22, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold)),
+                  Text('Biker', style: TextStyle(fontSize: 22, fontFamily: 'NimbusSans', fontWeight: FontWeight.bold, color: Colors.white)),
                   SizedBox(height: 10),
                   Text(
                     'Talleres Mecanicos',
-                    style: TextStyle(fontSize: 18, fontFamily: 'NinbusSans'),
+                    style: TextStyle(fontSize: 18, fontFamily: 'NinbusSans', color: Colors.white),
                   ),
                 ],
               ),
@@ -111,6 +121,10 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
+            padding: EdgeInsets.only(top: 5, left: 10), // Ajuste de espaciado
+            decoration: BoxDecoration(
+
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -129,23 +143,26 @@ class _HomePageState extends State<HomePage> {
                   style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.bold),
                   maxLines: 1,
                 ),
-                const SizedBox(height: 5),
-                CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  radius: 40,
-                  child: ClipOval(
-                    child: _con.users?.image != null
-                        ? Image.network(
-                      _con.users!.image!, // Asumiendo que _con.users?.image es una URL de imagen remota
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    )
-                        : Image.asset(
-                      'assets/img/usuario_icon.png',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
+                const SizedBox(height: 8), // Ajuste de espacio
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    child: ClipOval(
+                      child: _con.users?.image != null
+                          ? Image.network(
+                        _con.users!.image!, // Asumiendo que _con.users?.image es una URL de imagen remota
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      )
+                          : Image.asset(
+                        'assets/img/usuario_icon.png',
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -155,17 +172,12 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: const Text('Editar perfil', style: TextStyle(fontSize: 16, fontFamily: 'NimbusSans')),
             trailing: const Icon(Icons.edit, size: 30),
-            onTap: _con.goToEditar
+            onTap: _con.goToEditar,
           ),
           ListTile(
             title: const Text('Mis Favoritos',style: TextStyle(fontSize: 16, fontFamily: 'NimbusSans')),
             trailing: Image.asset('assets/img/icon_heart.png',height: 30,width: 30,),
-            onTap: () {},
-          ),
-          ListTile(
-            title: const Text('Soluciones Mecanicas', style: TextStyle(fontSize: 16, fontFamily: 'NimbusSans')),
-            trailing: const Icon(Icons.search,size: 30),
-            onTap: () {},
+            onTap: _con.goFavoritos,
           ),
           ListTile(
             title: const Text('Cerrar sesion', style: TextStyle(fontFamily: 'NimbusSans', fontSize: 16)),
@@ -177,21 +189,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+
   Widget _googleMaps(){
-    return GoogleMap(
-      mapType: MapType.normal,
+    return _con.position != null ?  maps.GoogleMap(
+      mapType: maps.MapType.normal,
       initialCameraPosition: _con.posicionInicial,
       onMapCreated: _con.onMapController,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomControlsEnabled: false,
       mapToolbarEnabled: false,
-      markers: Set<Marker>.from(_con.markers),
-      onTap: (LatLng latLng) {
+      markers: Set<maps.Marker>.from(_con.markers),
+      onTap: (maps.LatLng latLng) {
         _con.hideBottomWidget(); // Cambia esto para mostrar el widget
       },
-    );
+    ):Center(
+      child: CircularProgressIndicator(),
+    )
+    ;
   }
+
 
   Widget _mostrarDatos() {
     double? promedio = _con.selectedEmpresa?.promedio;
@@ -201,21 +218,21 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start, // Alinear el texto a la izquierda
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Center(
-            child: ClipOval(
-                child: Image.asset('assets/img/taller_mecanico.png'),
+           Center(
+              child: ClipOval(
+                  child: Image.asset('assets/img/taller_mecanico.png'),
+              ),
             ),
-          ),
           const SizedBox(width: 10), // Separación entre los textos
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _mostrarRazonSocial(),
-              const SizedBox(height: 5),
+              const SizedBox(height: 2),
               _calificacion(promedio!),
-              const SizedBox(height: 5),
+              const SizedBox(height: 2),
               _mostrarKm(),
-              const SizedBox(height: 5),
+              const SizedBox(height: 2),
               _mostrarAuxilio()
             ],
           ),
@@ -224,7 +241,7 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Flexible(
+              Expanded(
                 child: _infoWindow(),
               ),
               Padding(
@@ -308,52 +325,82 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBottomButtonWidget() {
     return Stack(
       children: [
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 300),
-          bottom: _con.isBottomWidgetVisible ? 160 : 20,
-          right: 25,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                if (_gopagina) {
-                  _currentBody = _googleMaps();
-                  _gopagina = false;
-                } else {
-                  _currentBody = const ListPage();
-                  _gopagina = true;
-                  _con.hideBottomWidget();
-                }
-                refresh();
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 0, 0, 255),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
+           AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              bottom: _con.isBottomWidgetVisible ? 200 : 70,
+              right: 40,
+             child: GestureDetector(
+               onTap: (){
+                 showModalBottomSheet(
+                   context: context,
+                   isScrollControlled: true,
+                   builder: (BuildContext context) {
+                     return SingleChildScrollView(
+                       child: Container(
+                         height: MediaQuery.of(context).size.height * 0.8,
+                         child: ChatPage(),
+                       ),
+                     );
+                   },
+                 );
+               },
+                child: Material(
+                    elevation: 10,
+                    shape: CircleBorder(),
+                    color: Colors.transparent,
+                    clipBehavior: Clip.hardEdge,
+                    child: Image.asset('assets/img/message.png',width: 70,height: 70, color: Color.fromARGB(255, 3, 169, 244 ),))
+             ),
+             ),
+
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              bottom: _con.isBottomWidgetVisible ? 160 : 20,
+              right: 20,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    if (_gopagina) {
+                      _currentBody = _googleMaps();
+                      _gopagina = false;
+                    } else {
+                      _currentBody = const ListPage();
+                      _gopagina = true;
+                      _con.hideBottomWidget();
+                    }
+                    refresh();
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 0, 0, 255),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                  elevation: 2,
+                ),
+                icon: _gopagina ? const Icon(
+                  Icons.map,
+                  size: 24,
+                  color: Colors.white,
+                ) : const Icon(
+                  Icons.list,
+                  size: 24,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  _gopagina ? 'Mapa' : 'Listar',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Roboto',
+                  ),
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-              elevation: 2,
             ),
-            icon: _gopagina ? const Icon(
-              Icons.map,
-              size: 24,
-            ) : const Icon(
-              Icons.list,
-              size: 24,
-            ),
-            label: Text(
-              _gopagina ? 'Mapa' : 'Listar',
-              style: const TextStyle(
-                fontSize: 16,
-                fontFamily: 'Roboto',
-              ),
-            ),
-          ),
-        ),
-      ],
+          ],
     );
   }
-
 
   Widget _buildBottomWidget() {
     return GestureDetector(
@@ -376,15 +423,15 @@ class _HomePageState extends State<HomePage> {
         children: [
           if (_con.isBottomWidgetVisible)
             Positioned(
-              bottom: 30,
-              left: 20,
-              right: 20,
+              bottom: 15,
+              left: 10,
+              right: 10,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 child: _mostrarDatos(),
               ),
             ),

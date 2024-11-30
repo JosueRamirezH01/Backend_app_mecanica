@@ -1,8 +1,8 @@
 
-import 'package:app_mecanica/models/response_api.dart';
-import 'package:app_mecanica/models/user.dart';
-import 'package:app_mecanica/provider/user_provider.dart';
-import 'package:app_mecanica/utils/my_snackbar.dart';
+import 'package:TallerGo/models/response_api.dart';
+import 'package:TallerGo/models/user.dart';
+import 'package:TallerGo/provider/user_provider.dart';
+import 'package:TallerGo/utils/my_snackbar.dart';
 import 'package:flutter/cupertino.dart';
 
 class RecuperacionController {
